@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE preferences SYSTEM "http://java.sun.com/dtd/preferences.dtd">
+<preferences EXTERNAL_XML_VERSION="1.0">
+  <root type="user">
+    <map/>
+    <node name="sample">
+      <map>
+        <entry key="accessories_storage_size" value="10"/>
+        <entry key="accessories_supplier_time" value="5000"/>
+        <entry key="body_storage_size" value="10"/>
+        <entry key="body_supplier_time" value="0"/>
+        <entry key="car_storage_size" value="10"/>
+        <entry key="engine_storage_size" value="10"/>
+        <entry key="engine_supplier_time" value="5000"/>
+        <entry key="worker_time" value="2"/>
+        <entry key="workers_num" value="2"/>
+      </map>
+    </node>
+  </root>
+</preferences>
