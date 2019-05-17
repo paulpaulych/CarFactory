@@ -1,5 +1,5 @@
 package sample;
 
-public class CarAccessories extends CarPart{
+public class CarAccessories extends Numerable {
 
 }

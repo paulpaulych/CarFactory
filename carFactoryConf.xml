@@ -6,13 +6,13 @@
     <node name="sample">
       <map>
         <entry key="accessories_storage_size" value="10"/>
-        <entry key="accessories_supplier_time" value="5000"/>
+        <entry key="accessories_supplier_time" value="1000"/>
         <entry key="body_storage_size" value="10"/>
-        <entry key="body_supplier_time" value="0"/>
+        <entry key="body_supplier_time" value="3000"/>
         <entry key="car_storage_size" value="10"/>
         <entry key="engine_storage_size" value="10"/>
-        <entry key="engine_supplier_time" value="5000"/>
-        <entry key="worker_time" value="2"/>
+        <entry key="engine_supplier_time" value="4000"/>
+        <entry key="worker_time" value="8000"/>
         <entry key="workers_num" value="2"/>
       </map>
     </node>

@@ -23,25 +23,25 @@ public class Controller extends View {
     @FXML private Slider accessoriesSupplierSlider;
 
     @FXML public void onClickButtonStart(){
-//        if(!carFactory.isRunning()){
-//            carFactory.run();
-//            System.out.println("carFactory.run()");
-//        } else {
-//            System.out.println("CarFactory has already started");
-//        }
+        if(!carFactory.isRunning()){
+            carFactory.run();
+            System.out.println("carFactory.run()");
+        } else {
+            System.out.println("CarFactory has already started");
+        }
     }
 
     @FXML public void onClickButtonStop() {
-//        carFactory.stop();
-//        System.out.println("carFactory.stop()");
+        carFactory.stop();
+        System.out.println("carFactory.stop()");
     }
 
     @FXML public void applyConfig(){
         Preferences prefs = Preferences.userNodeForPackage(this.getClass());
-        prefs.putInt(Config.WORKER_TIME, (int)workerSlider.getValue());
-        prefs.putInt(Config.BODY_SUPPLIER_TIME, (int)bodySupplierSlider.getValue());
-        prefs.putInt(Config.ENGINE_SUPPLIER_TIME, 5000);
-        prefs.putInt(Config.ACCESSORIES_SUPPLIER_TIME, 5000);
+        prefs.putInt(Config.WORKER_TIME, (int)workerSlider.getValue() * 1000);
+        prefs.putInt(Config.BODY_SUPPLIER_TIME, (int)bodySupplierSlider.getValue() * 1000);
+        prefs.putInt(Config.ENGINE_SUPPLIER_TIME, (int)engineSupplierSlider.getValue() * 1000);
+        prefs.putInt(Config.ACCESSORIES_SUPPLIER_TIME, (int)accessoriesSupplierSlider.getValue() * 1000);
         prefs.putInt(Config.WORKERS_NUM, 2);
         prefs.putInt(Config.CAR_STORAGE_SIZE, 10);
         prefs.putInt(Config.BODY_STORAGE_SIZE, 10);
