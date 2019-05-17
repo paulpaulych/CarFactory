@@ -1,4 +1,4 @@
-package sample.preferences;
+package carfactory.preferences;
 
 public class Config {
     public static final String CONF_FILE_NAME = "carFactoryConf.xml";

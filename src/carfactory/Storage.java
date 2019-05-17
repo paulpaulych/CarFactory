@@ -1,7 +1,6 @@
-package sample;
+package carfactory;
 
 import java.util.*;
-import java.util.concurrent.SynchronousQueue;
 
 public class Storage<T>{
 

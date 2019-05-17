@@ -1,4 +1,4 @@
-package sample;
+package carfactory;
 
 
 public class Car extends Numerable {

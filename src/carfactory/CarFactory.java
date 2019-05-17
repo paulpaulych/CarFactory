@@ -1,6 +1,6 @@
-package sample;
+package carfactory;
 
-import sample.preferences.Config;
+import carfactory.preferences.Config;
 
 import java.io.*;
 import java.util.Observable;
@@ -29,50 +29,34 @@ public class CarFactory extends Observable {
 
     public CarFactory(){
         prefs = Preferences.userNodeForPackage(this.getClass());
-        try(InputStream inputStream = new BufferedInputStream(
-                new FileInputStream(Config.CONF_FILE_NAME))){
-            Preferences.importPreferences(inputStream);
-        }catch(IOException | InvalidPreferencesFormatException exc) {
-            System.out.println("importPreferences() failed\n" + exc);
-        }
+
         carStorage = new Storage<>(prefs.getInt(Config.CAR_STORAGE_SIZE, 10));
         bodyStorage = new Storage<>(prefs.getInt(Config.BODY_STORAGE_SIZE, 10));
         engineStorage = new Storage<>(prefs.getInt(Config.ENGINE_STORAGE_SIZE, 10));
         accessoriesStorage = new Storage<>(prefs.getInt(Config.ACCESSORIES_STORAGE_SIZE, 10));
+    }
+
+    public void run() {
+
+        bodySupplier = Executors.newSingleThreadExecutor();
+        engineSupplier = Executors.newSingleThreadExecutor();
+        accessoriesSupplier = Executors.newSingleThreadExecutor();
+        workerExecutor = Executors.newFixedThreadPool(prefs.getInt(Config.WORKERS_NUM, 1));
+
+        running = true;
 
         bodySupplier = Executors.newSingleThreadExecutor();
         engineSupplier = Executors.newSingleThreadExecutor();
         accessoriesSupplier = Executors.newSingleThreadExecutor();
 
         workerExecutor = Executors.newFixedThreadPool(prefs.getInt(Config.WORKERS_NUM, 1));
-    }
 
-    public void run() {
-        running = true;
         bodySupplier.submit(bodySupplierTask);
         engineSupplier.submit(engineSupplierTask);
         accessoriesSupplier.submit(accessoriesSupplierTask);
         workerExecutor.submit(workerTask);
-    }
 
-    private final Runnable workerTask = () -> {
-        System.err.println(Thread.currentThread().getName() + "I'm worker!!!");
-        while(!Thread.currentThread().isInterrupted()) {
-            try {
-                CarBody carBody = bodyStorage.get();
-                CarEngine carEngine = engineStorage.get();
-                CarAccessories carAccessories = accessoriesStorage.get();
-                TimeUnit.MILLISECONDS.sleep(prefs.getInt(Config.WORKER_TIME, 2000));
-                carStorage.add(new Car(carBody, carEngine, carAccessories));
-                System.out.println("car created");
-                setChanged();
-                notifyObservers();
-            } catch (InterruptedException e) {
-                System.err.println(Thread.currentThread().getName() + "I'm done (c)worker");
-                break;
-            }
-        }
-    };
+    }
 
     private final Runnable bodySupplierTask = () -> {
         System.err.println(Thread.currentThread().getName() + "I'm working bodySupplier!!!");

@@ -1,8 +1,8 @@
-package sample;
+package carfactory;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Numerable {
+class Numerable {
 
     private static AtomicInteger serialNumberGenerator = new AtomicInteger(0);
 
