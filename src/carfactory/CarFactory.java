@@ -58,6 +58,35 @@ public class CarFactory extends Observable {
 
     }
 
+    private final Runnable carStorageControllerTask = () -> {
+        while (!Thread.currentThread().isInterrupted()) {
+            if (carStorage.size() / (double) carStorage.getMaxSize() < 0.2) {
+                for (int i = 0; i < curRequestsNumber; ++i) {
+                    workerPool.submit(task);
+                }
+            }
+        }
+    };
+
+    private final Runnable workerTask = () -> {
+        System.err.println(Thread.currentThread().getName() + "I'm worker!!!");
+        while(!Thread.currentThread().isInterrupted()) {
+            try {
+                CarBody carBody = bodyStorage.get();
+                CarEngine carEngine = engineStorage.get();
+                CarAccessories carAccessories = accessoriesStorage.get();
+                TimeUnit.MILLISECONDS.sleep(prefs.getInt(Config.WORKER_TIME, 2000));
+                carStorage.add(new Car(carBody, carEngine, carAccessories));
+                System.out.println("car created");
+                setChanged();
+                notifyObservers();
+            } catch (InterruptedException e) {
+                System.err.println(Thread.currentThread().getName() + "I'm done (c)worker");
+                break;
+            }
+        }
+    };
+
     private final Runnable bodySupplierTask = () -> {
         System.err.println(Thread.currentThread().getName() + "I'm working bodySupplier!!!");
         while(!Thread.currentThread().isInterrupted()) {

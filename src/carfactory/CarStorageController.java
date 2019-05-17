@@ -19,15 +19,6 @@ public class CarStorageController extends Thread{
     }
 
     @Override
-    public void run(){
-        while(!Thread.currentThread().isInterrupted()){
-            if(curStorageSize / (double)maxStorageSize < 0.2){
-                for(int i = 0; i < curRequestsNumber; ++i){
-                    workerPool.submit(task);
-                }
-            }
-        }
-
-    }
+    public void run()
 
 }

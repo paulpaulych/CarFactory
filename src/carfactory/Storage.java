@@ -18,6 +18,9 @@ public class Storage<T>{
 	public int size(){
 		return storage.size();
 	}
+	public int getMaxSize() {
+		return maxSize;
+	}
 
 	public synchronized void add(T t) throws InterruptedException{
 			while(true) {
