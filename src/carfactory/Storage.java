@@ -2,7 +2,7 @@ package carfactory;
 
 import java.util.*;
 
-public class Storage<T>{
+public class Storage<T> extends Observable{
 
 	private int maxSize;
 	private Queue<T> storage = new LinkedList<>();
@@ -23,29 +23,38 @@ public class Storage<T>{
 	}
 
 	public synchronized void add(T t) throws InterruptedException{
-			while(true) {
-				if (storage.size() < maxSize) {
-					storage.add(t);
+		while(true) {
+			if (storage.size() < maxSize) {
+				storage.add(t);
 
-					notifyAll();
-					return;
-				} else {
-					wait();
-				}
+				notifyAll();
+
+				hasChanged();
+				notifyObservers();
+
+				return;
+			} else {
+				wait();
 			}
+		}
 	}
 
 	public synchronized T get() throws InterruptedException{
-			while (true) {
-				if (storage.size() > 0) {
-					T t = storage.remove();
-					notify();
-					return t;
-				} else {
-					System.out.println("getLock.wait()" + Thread.currentThread().getName());
-					wait();
-				}
+		while (true) {
+			if (storage.size() > 0) {
+				T t = storage.remove();
+
+				notifyAll();
+
+				hasChanged();
+				notifyObservers();
+
+				return t;
+			} else {
+				System.out.println("getLock.wait()" + Thread.currentThread().getName());
+				wait();
 			}
+		}
 	}
 
 	public void clear(){

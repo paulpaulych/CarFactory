@@ -12,60 +12,8 @@
 <?import javafx.scene.text.Text?>
 
 <AnchorPane prefHeight="640.0" prefWidth="960.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="carfactory.Controller">
-   <TilePane layoutX="480.0" layoutY="24.0" orientation="VERTICAL" prefHeight="737.0" prefWidth="537.0" scaleShape="false">
+   <TilePane layoutX="181.0" layoutY="332.0" orientation="VERTICAL" prefHeight="737.0" prefWidth="537.0" scaleShape="false" visible="false">
       <children>
-         <GridPane>
-            <columnConstraints>
-               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-            </columnConstraints>
-            <rowConstraints>
-               <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-               <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-            </rowConstraints>
-            <children>
-                <Slider fx:id="workerSlider" blockIncrement="1" majorTickUnit="1" max="15.0" min="1.0" minorTickCount="1" showTickLabels="true" value="3.0" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
-                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Worker Speed" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-            </children>
-         </GridPane>
-         <GridPane>
-            <columnConstraints>
-               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-            </columnConstraints>
-            <rowConstraints>
-               <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-               <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-            </rowConstraints>
-            <children>
-                <Slider fx:id="bodySupplierSlider" blockIncrement="1" majorTickUnit="1" max="15.0" min="1.0" minorTickCount="1" showTickLabels="true" value="3.0" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
-                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Body Supplier Speed" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-            </children>
-         </GridPane>
-         <GridPane prefHeight="85.0" prefWidth="272.0">
-            <columnConstraints>
-               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-            </columnConstraints>
-            <rowConstraints>
-               <RowConstraints maxHeight="26.0" minHeight="1.0" prefHeight="26.0" vgrow="SOMETIMES" />
-               <RowConstraints maxHeight="35.0" minHeight="10.0" prefHeight="10.0" vgrow="SOMETIMES" />
-            </rowConstraints>
-            <children>
-                <Slider fx:id="engineSupplierSlider" blockIncrement="1" majorTickUnit="1" max="15.0" min="1.0" minorTickCount="1" showTickLabels="true" value="3.0" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
-                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Engine Supplier Speed" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-            </children>
-         </GridPane>
-         <GridPane>
-            <columnConstraints>
-               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-            </columnConstraints>
-            <rowConstraints>
-               <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-               <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-            </rowConstraints>
-            <children>
-                <Slider fx:id="accessoriesSupplierSlider" blockIncrement="1" majorTickUnit="1" max="15.0" min="1.0" minorTickCount="1" showTickLabels="true" value="3.0" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
-                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Accessories Supplier Speed" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-            </children>
-         </GridPane>
          <GridPane>
             <columnConstraints>
                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
@@ -107,6 +55,19 @@
             </children>
          </GridPane>
           <Button mnemonicParsing="false" onAction="#applyConfig" text="apply" />
+         <GridPane>
+            <columnConstraints>
+               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+            </columnConstraints>
+            <rowConstraints>
+               <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+               <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+            </rowConstraints>
+            <children>
+               <Slider fx:id="workerTimeSlider" blockIncrement="1" majorTickUnit="1" max="15.0" min="1.0" minorTickCount="1" showTickLabels="true" value="3.0" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+               <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Worker time" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+            </children>
+         </GridPane>
       </children>
    </TilePane>
     <Button layoutX="25.0" layoutY="103.0" mnemonicParsing="false" onAction="#onClickButtonStart" text="start" />
@@ -141,6 +102,62 @@
 
     <Text layoutX="288.0" layoutY="241.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Cars" />
     <Label fx:id="carStorageOccupacity" layoutX="302.0" layoutY="261.0" text="0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+   <TilePane layoutX="490.0" layoutY="34.0" orientation="VERTICAL" prefHeight="737.0" prefWidth="537.0" scaleShape="false">
+      <children>
+         <GridPane>
+            <columnConstraints>
+               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+            </columnConstraints>
+            <rowConstraints>
+               <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+               <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+            </rowConstraints>
+            <children>
+               <Slider fx:id="bodySupplierTimeSlider" blockIncrement="1" majorTickUnit="1" max="15.0" min="1.0" minorTickCount="1" showTickLabels="true" value="3.0" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+               <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Body supplier time" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+            </children>
+         </GridPane>
+         <GridPane prefHeight="85.0" prefWidth="272.0">
+            <columnConstraints>
+               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+            </columnConstraints>
+            <rowConstraints>
+               <RowConstraints maxHeight="26.0" minHeight="1.0" prefHeight="26.0" vgrow="SOMETIMES" />
+               <RowConstraints maxHeight="35.0" minHeight="10.0" prefHeight="10.0" vgrow="SOMETIMES" />
+            </rowConstraints>
+            <children>
+               <Slider fx:id="engineSupplierTimeSlider" blockIncrement="1" majorTickUnit="1" max="15.0" min="1.0" minorTickCount="1" showTickLabels="true" value="3.0" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+               <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Engine supplier time" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+            </children>
+         </GridPane>
+         <GridPane>
+            <columnConstraints>
+               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+            </columnConstraints>
+            <rowConstraints>
+               <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+               <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+            </rowConstraints>
+            <children>
+                <Slider fx:id="accessoriesSupplierTimeSlider" blockIncrement="1" majorTickUnit="1" max="15.0" min="1.0" minorTickCount="1" showTickLabels="true" value="3.0" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Accessories supplier time" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+            </children>
+         </GridPane>
+         <GridPane layoutX="10.0" layoutY="10.0">
+            <columnConstraints>
+               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+            </columnConstraints>
+            <rowConstraints>
+               <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+               <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+            </rowConstraints>
+            <children>
+               <Slider fx:id="dealerTimeSlider" blockIncrement="1" majorTickUnit="1" max="15.0" min="1.0" minorTickCount="1" showTickLabels="true" value="3.0" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+               <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Dealer time" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+            </children>
+         </GridPane>
+      </children>
+   </TilePane>
 
     <!--<Text layoutX="135.0" layoutY="100.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Body storage" />-->
     <!--<Text layoutX="92.0" layoutY="226.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Accessories storage" />-->

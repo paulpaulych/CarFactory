@@ -1,6 +1,7 @@
 package carfactory;
 
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
 import carfactory.preferences.Config;
@@ -9,17 +10,22 @@ import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URL;
+import java.util.ResourceBundle;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-public class Controller extends View {
+public class Controller
+        extends View
+        implements Initializable {
 
     @FXML private Button buttonStart;
     @FXML private Button buttonStop;
-    @FXML private Slider workerSlider;
-    @FXML private Slider bodySupplierSlider;
-    @FXML private Slider engineSupplierSlider;
-    @FXML private Slider accessoriesSupplierSlider;
+
+    @FXML private Slider dealerTimeSlider;
+    @FXML private Slider bodySupplierTimeSlider;
+    @FXML private Slider engineSupplierTimeSlider;
+    @FXML private Slider accessoriesSupplierTimeSlider;
     @FXML private Slider workersNumberSlider;
     @FXML private Slider accessoriesSuppliersNumberSlider;
     @FXML private Slider dealersNumberSlider;
@@ -40,17 +46,10 @@ public class Controller extends View {
 
     @FXML public void applyConfig(){
         Preferences prefs = Preferences.userNodeForPackage(this.getClass());
-        prefs.putInt(Config.WORKER_TIME, (int)workerSlider.getValue() * 1000);
-        prefs.putInt(Config.BODY_SUPPLIER_TIME, (int)bodySupplierSlider.getValue() * 1000);
-        prefs.putInt(Config.ENGINE_SUPPLIER_TIME, (int)engineSupplierSlider.getValue() * 1000);
-        prefs.putInt(Config.ACCESSORIES_SUPPLIER_TIME, (int)accessoriesSupplierSlider.getValue() * 1000);
-        prefs.putInt(Config.WORKERS_NUM, (int)workersNumberSlider.getValue());
-        prefs.putInt(Config.DEALERS_NUM, (int)dealersNumberSlider.getValue());
-        prefs.putInt(Config.ACCESSORIES_SUPPLIERS_NUM, (int)accessoriesSuppliersNumberSlider.getValue());
-
         prefs.putInt(Config.CAR_STORAGE_SIZE, 10);
         prefs.putInt(Config.BODY_STORAGE_SIZE, 10);
         prefs.putInt(Config.ENGINE_STORAGE_SIZE, 10);
+        prefs.putInt(Config.WORKER_TIME, 3000);
 
         try(OutputStream outputStream =
                 new BufferedOutputStream(new FileOutputStream(Config.CONF_FILE_NAME))){
@@ -59,5 +58,21 @@ public class Controller extends View {
         }catch(IOException | BackingStoreException exc) {
             System.out.println("exportPreferences() failed\n" + exc);
         }
+    }
+
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        dealerTimeSlider.valueProperty().addListener((observable, oldValue, newValue) ->{
+                System.err.println("dealer time changed");
+                carFactory.setDealerTime(newValue.intValue() * 1000);
+            });
+        bodySupplierTimeSlider.valueProperty().addListener((observable, oldValue, newValue) ->
+                carFactory.setBodySupplierTime(newValue.intValue() * 1000));
+        engineSupplierTimeSlider.valueProperty().addListener((observable, oldValue, newValue) ->
+                carFactory.setEngineSupplierTime(newValue.intValue() * 1000));
+        accessoriesSupplierTimeSlider.valueProperty().addListener((observable, oldValue, newValue) ->
+                carFactory.setAccessoriesSupplierTime(newValue.intValue() * 1000));
+
     }
 }

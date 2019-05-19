@@ -14,11 +14,16 @@ public class View implements Observer {
     @FXML private Label accessoriesStorageOccupacity;
     @FXML private Label carStorageOccupacity;
 
-    protected CarFactory carFactory = new CarFactory();
+    protected CarFactory carFactory;
+
+    void setCarFactory(CarFactory carFactory){
+        this.carFactory = carFactory;
+        carFactory.addObserver(this);
+        System.out.println("carFactory attahed");
+    }
 
     public View(){
         System.out.println("hi im view");
-        carFactory.addObserver(this);
     }
 
     @Override

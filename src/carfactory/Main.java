@@ -12,9 +12,15 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("../resources/sample.fxml"));
-            primaryStage.setTitle("Car Factory");
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../resources/sample.fxml"));
+            Parent root = fxmlLoader.load();
+            Controller controller = fxmlLoader.getController();
+            CarFactory carFactory = new CarFactory();
+            controller.setCarFactory(carFactory);
             primaryStage.setScene(new Scene(root));
+            primaryStage.setOnCloseRequest(event ->
+                carFactory.stop());
+            primaryStage.setTitle("Car Factory");
             primaryStage.show();
         } catch(LoadException e) {
             e.printStackTrace();
