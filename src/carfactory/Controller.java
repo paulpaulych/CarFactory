@@ -34,10 +34,14 @@ public class Controller
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        dealerTimeSlider.valueProperty().addListener((observable, oldValue, newValue) ->
-                carFactory.setDealerTime(newValue.intValue() * 1000));
-        bodySupplierTimeSlider.valueProperty().addListener((observable, oldValue, newValue) ->
-                carFactory.setBodySupplierTime(newValue.intValue() * 1000));
+        dealerTimeSlider.valueProperty().addListener((observable, oldValue, newValue) ->{
+            log.debug("dealer time chahged");
+            carFactory.setDealerTime(newValue.intValue() * 1000);
+        });
+        bodySupplierTimeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            log.debug("dealer time chahged");
+            carFactory.setBodySupplierTime(newValue.intValue() * 1000);
+        });
         engineSupplierTimeSlider.valueProperty().addListener((observable, oldValue, newValue) ->
                 carFactory.setEngineSupplierTime(newValue.intValue() * 1000));
         accessoriesSupplierTimeSlider.valueProperty().addListener((observable, oldValue, newValue) ->

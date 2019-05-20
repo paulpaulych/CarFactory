@@ -1,14 +1,7 @@
 package carfactory;
 
-import java.util.concurrent.atomic.AtomicInteger;
+interface Numerable {
 
-class Numerable {
+    int getID();
 
-    private static AtomicInteger serialNumberGenerator = new AtomicInteger(0);
-
-    private final int ID = serialNumberGenerator.incrementAndGet();
-
-    public int getID() {
-        return ID;
-    }
 }

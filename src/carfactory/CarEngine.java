@@ -1,5 +1,14 @@
 package carfactory;
 
-public class CarEngine extends Numerable {
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class CarEngine implements Numerable {
+
+    private static AtomicInteger serialNumberGenerator = new AtomicInteger(0);
+
+    private final int ID = serialNumberGenerator.incrementAndGet();
+
+    @Override
+    public int getID() { return ID; }
 
 }
