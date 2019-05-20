@@ -1,15 +1,20 @@
 package carfactory;
 
+import carfactory.exception.CarFactoryConfigException;
 import carfactory.preferences.Config;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.prefs.InvalidPreferencesFormatException;
 import java.util.prefs.Preferences;
 
@@ -17,56 +22,71 @@ public class CarFactory extends Observable {
 
     private static final Logger log = LogManager.getLogger();
 
-    private Preferences prefs;
-
+    private static final int DEFAULT_TASK_TIME = 3000;
+    
     private boolean running = false;
+
+    private Preferences prefs = Preferences.userNodeForPackage(this.getClass());
+
+    private Storage<Car> carStorage = new Storage<>(prefs.getInt(Config.CAR_STORAGE_SIZE, 10));
+    private Storage<CarBody> bodyStorage = new Storage<>(prefs.getInt(Config.BODY_STORAGE_SIZE, 10));
+    private Storage<CarEngine> engineStorage = new Storage<>(prefs.getInt(Config.ENGINE_STORAGE_SIZE, 10));
+    private Storage<CarAccessories> accessoriesStorage = new Storage<>(prefs.getInt(Config.ACCESSORIES_STORAGE_SIZE, 10));
 
     private ExecutorService dealerPool;
     private ExecutorService bodySupplier;
     private ExecutorService engineSupplier;
     private ExecutorService accessoriesSupplierPool;
-
     private CarStorageController carStorageController;
 
-    private Storage<Car> carStorage;
-    private Storage<CarBody> bodyStorage;
-    private Storage<CarEngine> engineStorage;
-    private Storage<CarAccessories> accessoriesStorage;
+    private int dealerTime = DEFAULT_TASK_TIME;
+    private int bodySupplierTime = DEFAULT_TASK_TIME;
+    private int engineSupplierTime = DEFAULT_TASK_TIME;
+    private int accessoriesSupplierTime = DEFAULT_TASK_TIME;
 
-    private int dealerTime = 3000;
-    private int bodySupplierTime = 3000;
-    private int engineSupplierTime = 3000;
-    private int accessoriesSupplierTime = 3000;
+    private AtomicInteger bodyTotalMade = new AtomicInteger(0);
+    private AtomicInteger engineTotalMade = new AtomicInteger(0);
+    private AtomicInteger accessoriesTotalMade = new AtomicInteger(0);
+    private AtomicInteger carTotalMade = new AtomicInteger(0);
 
-    public CarFactory(){
-        prefs = Preferences.userNodeForPackage(this.getClass());
-    }
+    private int dealersNum;
+    private int accessoriesSuppliersNum;
 
-    public void run() {
-
-        running = true;
-
+    public CarFactory() throws CarFactoryConfigException{
         try(InputStream is = new FileInputStream(Config.CONF_FILE_NAME)){
             Preferences.importPreferences(is);
         } catch (IOException | InvalidPreferencesFormatException e){
-            e.printStackTrace();
+            log.error(e);
+            throw new CarFactoryConfigException(e);
         }
+    }
 
-        carStorage = new Storage<>(prefs.getInt(Config.CAR_STORAGE_SIZE, 10));
-        bodyStorage = new Storage<>(prefs.getInt(Config.BODY_STORAGE_SIZE, 10));
-        engineStorage = new Storage<>(prefs.getInt(Config.ENGINE_STORAGE_SIZE, 10));
-        accessoriesStorage = new Storage<>(prefs.getInt(Config.ACCESSORIES_STORAGE_SIZE, 10));
+    public void run() throws NoSuchMethodException{
+
+        running = true;
 
         bodySupplier = Executors.newSingleThreadExecutor();
-        engineSupplier = Executors.newSingleThreadExecutor();
+        bodySupplier.submit(new SupplierTask<>(CarBody.class,
+                bodyStorage,
+                bodySupplierTime,
+                bodyTotalMade));
 
-        int accessoriesSuppliersNum = prefs.getInt(Config.ACCESSORIES_SUPPLIERS_NUM, 1);
+        engineSupplier = Executors.newSingleThreadExecutor();
+        engineSupplier.submit(new SupplierTask<>(CarEngine.class,
+                engineStorage,
+                engineSupplierTime,
+                engineTotalMade));
+
+        accessoriesSuppliersNum = prefs.getInt(Config.ACCESSORIES_SUPPLIERS_NUM, 1);
         accessoriesSupplierPool = Executors.newFixedThreadPool(accessoriesSuppliersNum);
         for(int i = 0; i < accessoriesSuppliersNum; ++i){
-            accessoriesSupplierPool.submit(accessoriesSupplierTask);
+            accessoriesSupplierPool.submit(new SupplierTask<>(CarAccessories.class,
+                    accessoriesStorage,
+                    accessoriesSupplierTime,
+                    accessoriesTotalMade));
         }
 
-        int dealersNum = prefs.getInt(Config.DEALERS_NUM, 1);
+        dealersNum = prefs.getInt(Config.DEALERS_NUM, 1);
         dealerPool = Executors.newFixedThreadPool(dealersNum);
         for(int i = 0; i < dealersNum; ++i){
             dealerPool.submit(dealerTask);
@@ -75,13 +95,10 @@ public class CarFactory extends Observable {
         carStorageController = new CarStorageController();
         //костыль. Надо как-то оповестить carStorageController о начале работы
         carStorageController.update(carStorage, new Object());
-
-        bodySupplier.submit(bodySupplierTask);
-        engineSupplier.submit(engineSupplierTask);
     }
 
-
     public void stop(){
+
         if(!running){
             return;
         }
@@ -100,36 +117,38 @@ public class CarFactory extends Observable {
         engineStorage.clear();
         accessoriesStorage.clear();
         carStorage.clear();
+
+        log.debug("carFactory.stop()");
     }
 
     class CarStorageController implements Observer {
 
+        ExecutorService workerPool;
+
         private final Runnable workerTask = () -> {
-            System.err.println(Thread.currentThread().getName() + "I'm worker!!!");
+            log.debug("I'm worker");
             while(!Thread.currentThread().isInterrupted()) {
                 try {
                     CarBody carBody = bodyStorage.get();
                     CarEngine carEngine = engineStorage.get();
                     CarAccessories carAccessories = accessoriesStorage.get();
-                    TimeUnit.MILLISECONDS.sleep(prefs.getInt(Config.WORKER_TIME, 5000));
-                    carStorage.add(new Car(carBody, carEngine, carAccessories));
-                    System.out.println("car created");
+                    TimeUnit.MILLISECONDS.sleep(prefs.getInt(Config.WORKER_TIME, DEFAULT_TASK_TIME));
+                    Car car = new Car(carBody, carEngine, carAccessories);
+                    carStorage.add(car);
+                    carTotalMade.incrementAndGet();
+                    log.debug("Car (ID: ", car.getID(), ") added to the CarStorage");
                     setChanged();
                     notifyObservers();
                 } catch (InterruptedException e) {
-                    System.err.println(Thread.currentThread().getName() + "I'm done (c)worker");
+                    log.debug("Interrupted. Finished.");
                     break;
                 }
             }
         };
 
-        ExecutorService workerPool;
-
         CarStorageController() {
             carStorage.addObserver(this);
-
-            int num = prefs.getInt(Config.WORKERS_NUM, 1);
-            workerPool = Executors.newFixedThreadPool(num);
+            workerPool = Executors.newFixedThreadPool(prefs.getInt(Config.WORKERS_NUM, 1));
         }
 
         void stop() {
@@ -138,8 +157,6 @@ public class CarFactory extends Observable {
 
         @Override
         public void update(Observable o, Object arg) {
-            System.out.println("listened");
-
             Storage<Car> storage = (Storage<Car>)o;
             if (storage.size() / (double) storage.getMaxSize() < 0.2) {
                 int newTasksNum = 3;//magic??
@@ -150,66 +167,58 @@ public class CarFactory extends Observable {
         }
     }
 
-    private final Runnable bodySupplierTask = () -> {
-        System.err.println(Thread.currentThread().getName() + "I'm working bodySupplier!!!");
-        while(!Thread.currentThread().isInterrupted()) {
-            try {
-                TimeUnit.MILLISECONDS.sleep(bodySupplierTime);
-                bodyStorage.add(new CarBody());
-                System.out.println("body added");
-                setChanged();
-                notifyObservers();
-            } catch (InterruptedException e) {
-                System.err.println(Thread.currentThread().getName() + "I'm done (c)bodySupplier");
-                break;
+    private class SupplierTask<T extends Numerable> implements Runnable {
+
+        private Constructor<T> carPartConstructor;
+        private Storage<T> storage;
+        private int sleepTime;
+        private String carPartName;
+        AtomicInteger counter;
+
+        SupplierTask(Class<T> carPartType, Storage<T> storage, int sleepTime, AtomicInteger counter) throws NoSuchMethodException {
+            this.carPartConstructor = carPartType.getConstructor();
+            this.storage = storage;
+            this.sleepTime = sleepTime;
+            this.carPartName = carPartType.getName();
+        }
+
+        @Override
+        public void run() {
+            log.debug("I'm ", carPartName, "Supplier.");
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    TimeUnit.MILLISECONDS.sleep(sleepTime);
+                    storage.add(carPartConstructor.newInstance());
+                    counter.incrementAndGet();
+                    log.debug(carPartName, " added to the bodyStorage.");
+                    setChanged();
+                    notifyObservers();
+                } catch (InterruptedException e) {
+                    log.debug("Interrupted. Finished.");
+                    break;
+                } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                    log.error(e);
+                    break;
+                }
             }
         }
-    };
-    private final Runnable engineSupplierTask = () -> {
-        System.err.println(Thread.currentThread().getName() + "I'm working engineSupplier!!!");
-        while(!Thread.currentThread().isInterrupted()) {
-            try {
-                TimeUnit.MILLISECONDS.sleep(engineSupplierTime);
-                engineStorage.add(new CarEngine());
-                System.out.println("engine added");
-                setChanged();
-                notifyObservers();
-            } catch (InterruptedException e) {
-                System.err.println(Thread.currentThread().getName() + "I'm done (c)engineSupplier");
-                break;
-            }
-        }
-    };
-    private final Runnable accessoriesSupplierTask = () -> {
-        System.err.println(Thread.currentThread().getName() + "I'm working accessoriesSupplier!!!");
-        while(!Thread.currentThread().isInterrupted()) {
-            try {
-                TimeUnit.MILLISECONDS.sleep(accessoriesSupplierTime);
-                accessoriesStorage.add(new CarAccessories());
-                System.out.println("accessories added");
-                setChanged();
-                notifyObservers();
-            } catch (InterruptedException e) {
-                System.err.println(Thread.currentThread().getName() + "I'm done (c)accessoriesSupplier");
-                break;
-            }
-        }
-    };
-    private final Runnable dealerTask = () -> {
-        System.err.println(Thread.currentThread().getName() + "I'm working dealer!!!");
+    }
+
+    private final Runnable dealerTask = () -> { 
+        log.debug("I'm dealer.");
         while(!Thread.currentThread().isInterrupted()) {
             try{
                 TimeUnit.MILLISECONDS.sleep(dealerTime);
                 Car car = carStorage.get();
-                System.err.println("carTaken, time is " + dealerTime);
+                log.debug("Car taken from the storage.");
+                //log.info("");
                 setChanged();
                 notifyObservers();
             }catch(InterruptedException e) {
-                System.err.println(Thread.currentThread().getName() + "was interrupted");
+                log.debug("Interrupted. Finished.");
                 break;
             }
         }
-        System.err.println(Thread.currentThread().getName() + "I'm done (c)dealer");
     };
 
     public int getBodyStorageSize(){
@@ -235,6 +244,22 @@ public class CarFactory extends Observable {
     }
     public int getCarStorageMaxSize(){
         return prefs.getInt(Config.CAR_STORAGE_SIZE, 10);
+    }
+    public int getDealersNum(){
+        return dealersNum;
+    }
+
+    public int getBodyTotalMade(){
+        return bodyTotalMade.get();
+    }
+    public int getEngineTotalMade(){
+        return engineTotalMade.get();
+    }
+    public int getAccessoriesTotalMade(){
+        return accessoriesTotalMade.get();
+    }
+    public int getCarTotalMade(){
+        return carTotalMade.get();
     }
 
     public void setDealerTime(int dealerTime) {

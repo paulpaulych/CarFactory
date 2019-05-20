@@ -1,18 +1,19 @@
 package carfactory;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.*;
 
 public class Storage<T> extends Observable{
+
+	private static final Logger log = LogManager.getLogger();
 
 	private int maxSize;
 	private Queue<T> storage = new LinkedList<>();
 
 	public Storage(int maxSize){
 		this.maxSize = maxSize;
-	}
-
-	public double howFull() {
-		return storage.size()/(double)maxSize * 100;
 	}
 
 	public int size(){
@@ -51,7 +52,7 @@ public class Storage<T> extends Observable{
 
 				return t;
 			} else {
-				System.out.println("getLock.wait()" + Thread.currentThread().getName());
+				log.debug("getLock.wait()" + Thread.currentThread().getName());
 				wait();
 			}
 		}

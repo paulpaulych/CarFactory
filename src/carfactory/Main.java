@@ -1,13 +1,18 @@
 package carfactory;
 
+import carfactory.exception.CarFactoryConfigException;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.LoadException;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Main extends Application {
+
+    private static final Logger log = LogManager.getLogger();
 
     @Override
     public void start(Stage primaryStage) throws Exception{
@@ -22,8 +27,8 @@ public class Main extends Application {
                 carFactory.stop());
             primaryStage.setTitle("Car Factory");
             primaryStage.show();
-        } catch(LoadException e) {
-            e.printStackTrace();
+        } catch(LoadException | CarFactoryConfigException e) {
+            log.error(e);
         }
     }
 

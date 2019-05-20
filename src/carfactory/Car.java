@@ -3,7 +3,6 @@ package carfactory;
 
 public class Car extends Numerable {
 
-	private int serialNumber;
 	private CarEngine engine;
 	private CarBody body;
 	private CarAccessories accessories;
@@ -12,5 +11,17 @@ public class Car extends Numerable {
 		this.body = body;
 		this.engine = engine;
 		this.accessories = accessories;
+	}
+
+	public int getBodyID(){
+		return body.getID();
+	}
+
+	public int getEngineID(){
+		return engine.getID();
+	}
+
+	public int getAccessoriesID(){
+		return accessories.getID();
 	}
 }

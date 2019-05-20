@@ -6,6 +6,9 @@ class Numerable {
 
     private static AtomicInteger serialNumberGenerator = new AtomicInteger(0);
 
-    private int serialNumber = serialNumberGenerator.incrementAndGet();
+    private final int ID = serialNumberGenerator.incrementAndGet();
 
+    public int getID() {
+        return ID;
+    }
 }
