@@ -2,9 +2,9 @@ package carfactory;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class CarBody implements Numerable {
+public class CarAccessories implements Numerable{
 
-    private static AtomicInteger serialNumberGenerator = new AtomicInteger(0);
+    private static final AtomicInteger serialNumberGenerator = new AtomicInteger(0);
 
     private final int ID = serialNumberGenerator.incrementAndGet();
 

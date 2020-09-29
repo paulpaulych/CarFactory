@@ -9,8 +9,8 @@ public class Storage<T> extends Observable{
 
 	private static final Logger log = LogManager.getLogger();
 
-	private int maxSize;
-	private Queue<T> storage = new LinkedList<>();
+	private final int maxSize;
+	private final Queue<T> storage = new LinkedList<>();
 
 	public Storage(int maxSize){
 		this.maxSize = maxSize;

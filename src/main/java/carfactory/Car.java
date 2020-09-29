@@ -5,13 +5,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Car implements Numerable{
 
-	private static AtomicInteger serialNumberGenerator = new AtomicInteger(0);
+	private static final AtomicInteger serialNumberGenerator = new AtomicInteger(0);
 
 	private final int ID = serialNumberGenerator.incrementAndGet();
 
-	private CarEngine engine;
-	private CarBody body;
-	private CarAccessories accessories;
+	private final CarEngine engine;
+	private final CarBody body;
+	private final CarAccessories accessories;
 	
 	public Car(CarBody body, CarEngine engine, CarAccessories accessories) {
 		this.body = body;

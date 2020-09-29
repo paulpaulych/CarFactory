@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class CarEngine implements Numerable {
 
-    private static AtomicInteger serialNumberGenerator = new AtomicInteger(0);
+    private static final AtomicInteger serialNumberGenerator = new AtomicInteger(0);
 
     private final int ID = serialNumberGenerator.incrementAndGet();
 

@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.lang.reflect.Constructor;
+import java.util.Arrays;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.ExecutorService;
@@ -28,12 +29,12 @@ public class CarFactory extends Observable {
     
     private boolean running = false;
 
-    private Preferences prefs = Preferences.userNodeForPackage(this.getClass());
+    private final Preferences prefs = Preferences.userNodeForPackage(this.getClass());
 
     private Storage<Car> carStorage;
-    private Storage<CarBody> bodyStorage;
-    private Storage<CarEngine> engineStorage;
-    private Storage<CarAccessories> accessoriesStorage;
+    private final Storage<CarBody> bodyStorage;
+    private final Storage<CarEngine> engineStorage;
+    private final Storage<CarAccessories> accessoriesStorage;
 
     private Supplier<CarBody> bodySupplier;
     private Supplier<CarEngine> engineSupplier;
@@ -47,7 +48,7 @@ public class CarFactory extends Observable {
     private int accessoriesSupplierTime = DEFAULT_TASK_TIME;
 
     private int dealersNum;
-    private int accessoriesSuppliersNum;
+    private final int accessoriesSuppliersNum;
 
     public CarFactory() throws CarFactoryConfigException{
         try(InputStream is = new FileInputStream(Config.CONF_FILE_NAME)){
@@ -126,7 +127,7 @@ public class CarFactory extends Observable {
 
         private static final int DEFAULT_REQUEST_VOLUME = 3;
         private static final double MIN_STORAGE_POINT = 0.2;
-        private AtomicInteger totalMadeCounter = new AtomicInteger(0);
+        private final AtomicInteger totalMadeCounter = new AtomicInteger(0);
 
         ExecutorService workerPool;
 
@@ -162,8 +163,7 @@ public class CarFactory extends Observable {
         public void update(Observable o, Object arg) {
             Storage<Car> storage = (Storage<Car>)o;
             if (storage.size() / (double) storage.getMaxSize() < MIN_STORAGE_POINT) {
-                int newTasksNum = DEFAULT_REQUEST_VOLUME;
-                for (int i = 0; i < newTasksNum; ++i) {
+                for (int i = 0; i < DEFAULT_REQUEST_VOLUME; ++i) {
                     workerPool.submit(workerTask);
                 }
             }
@@ -177,10 +177,10 @@ public class CarFactory extends Observable {
     private class Supplier<T extends Numerable> extends Thread{
 
         AtomicInteger totalMadeCounter = new AtomicInteger(0);
-        private Constructor<T> carPartConstructor;
-        private Storage<T> storage;
-        private int sleepTime;
-        private String carPartName;
+        private final Constructor<T> carPartConstructor;
+        private final Storage<T> storage;
+        private final int sleepTime;
+        private final String carPartName;
 
         int getTotalMade(){
             return totalMadeCounter.get();
@@ -276,11 +276,10 @@ public class CarFactory extends Observable {
         return engineSupplier.getTotalMade();
     }
     public int getAccessoriesTotalMade(){
-        int res = 0;
-        for(Supplier<CarAccessories> supplier : accessoriesSuppliers){
-            res += supplier.getTotalMade();
-        }
-        return res;
+        return Arrays.stream(accessoriesSuppliers)
+                .map(Supplier::getTotalMade)
+                .reduce(Integer::sum)
+                .get();
     }
     public int getCarTotalMade(){
         return carStorageController.getTotalMade();

@@ -1,5 +1,6 @@
 package carfactory;
 
+import carfactory.exception.CarFactoryReflectiveException;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -20,7 +21,7 @@ public class Controller
     @FXML private Slider engineSupplierTimeSlider;
     @FXML private Slider accessoriesSupplierTimeSlider;
 
-    @FXML public void onClickButtonStart() throws NoSuchMethodException{
+    @FXML public void onClickButtonStart() throws CarFactoryReflectiveException {
         if(!carFactory.isRunning()){
             carFactory.run();
         } else {

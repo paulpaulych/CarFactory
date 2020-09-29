@@ -10,6 +10,12 @@ import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.Scanner;
+
 public class Main extends Application {
 
     private static final Logger log = LogManager.getLogger();
@@ -17,7 +23,12 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../resources/sample.fxml"));
+
+            InputStream fxml = getClass().getClassLoader()
+                    .getResourceAsStream("sample.fxml");
+            assert fxml != null;
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getClassLoader()
+                    .getResource("sample.fxml"));
             Parent root = fxmlLoader.load();
             Controller controller = fxmlLoader.getController();
             CarFactory carFactory = new CarFactory();
