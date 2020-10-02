@@ -14,7 +14,9 @@ repositories {
 dependencies {
     implementation("org.openjfx:javafx-control:11.0.2")
     implementation("org.openjfx:javafx-fxml:11.0.2")
-    implementation("org.apache.logging.log4j:log4j-core:2.11.2")
+
+    implementation("org.slf4j:slf4j-api:1.7.30")
+    implementation("ch.qos.logback:logback-classic:1.2.3")
     testImplementation("junit:junit:4.12")
 }
 
@@ -24,11 +26,14 @@ tasks {
         modules("javafx.controls", "javafx.fxml")
     }
     java {
-        sourceCompatibility = JavaVersion.VERSION_14
-        targetCompatibility = JavaVersion.VERSION_14
+        sourceCompatibility = JavaVersion.VERSION_15
+        targetCompatibility = JavaVersion.VERSION_15
+    }
+    withType<JavaCompile>().forEach {
+        it.options.compilerArgs.add("--enable-preview")
     }
     application {
-        applicationDefaultJvmArgs = listOf(" -Dlog4j.configurationFile=file:src/main/resources/log4j2.properties")
+        applicationDefaultJvmArgs = listOf("--enable-preview")
     }
     jar {
         manifest {
@@ -36,4 +41,7 @@ tasks {
         }
     }
 }
-project.setProperty("mainClassName", "carfactory.Main")
+
+configurations {
+    setProperty("mainClassName", "carfactory.Main")
+}

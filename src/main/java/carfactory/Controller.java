@@ -1,6 +1,7 @@
 package carfactory;
 
-import carfactory.exception.CarFactoryReflectiveException;
+import carfactory.model.CarFactory;
+import carfactory.model.Preferences;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -12,40 +13,58 @@ import java.util.ResourceBundle;
 public class Controller
         extends View
         implements Initializable {
-    
-    @FXML private Button buttonStart;
-    @FXML private Button buttonStop;
 
-    @FXML private Slider dealerTimeSlider;
-    @FXML private Slider bodySupplierTimeSlider;
-    @FXML private Slider engineSupplierTimeSlider;
-    @FXML private Slider accessoriesSupplierTimeSlider;
+    @FXML private Slider dealerFixedDelaySlider;
+    @FXML private Slider bodySupplierFixedDelaySlider;
+    @FXML private Slider engineSupplierFixedDelaySlider;
+    @FXML private Slider accessoriesSupplierFixedDelaySlider;
+    @FXML private Slider workerFixedDelaySlider;
 
-    @FXML public void onClickButtonStart() throws CarFactoryReflectiveException {
-        if(!carFactory.isRunning()){
-            carFactory.run();
-        } else {
+    @FXML public void onClickButtonStart() {
+        if(carFactory != null){
             log.debug("CarFactory has already started");
+            return;
         }
+        this.carFactory = new CarFactory(
+                config,
+                new Preferences(
+                    speedToDelay(workerFixedDelaySlider.getValue()),
+                    speedToDelay(bodySupplierFixedDelaySlider.getValue()),
+                    speedToDelay(engineSupplierFixedDelaySlider.getValue()),
+                    speedToDelay(accessoriesSupplierFixedDelaySlider.getValue()),
+                    speedToDelay(dealerFixedDelaySlider.getValue())
+            ));
+        this.carFactory.subscribe(this::onNext);
     }
 
     @FXML public void onClickButtonStop() {
-        carFactory.stop();
+        if(carFactory == null){
+            return;
+        }
+        carFactory.close();
+        carFactory = null;
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        dealerTimeSlider.valueProperty().addListener((observable, oldValue, newValue) ->{
-            log.debug("dealer time chahged");
-            carFactory.setDealerTime(newValue.intValue() * 1000);
+        dealerFixedDelaySlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+                if(carFactory != null) carFactory.getPreferences().setDealerFixedDelayMs(speedToDelay(newValue));
         });
-        bodySupplierTimeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            log.debug("dealer time chahged");
-            carFactory.setBodySupplierTime(newValue.intValue() * 1000);
+        bodySupplierFixedDelaySlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if(carFactory != null) carFactory.getPreferences().setBodySupplierDelay(speedToDelay(newValue));
         });
-        engineSupplierTimeSlider.valueProperty().addListener((observable, oldValue, newValue) ->
-                carFactory.setEngineSupplierTime(newValue.intValue() * 1000));
-        accessoriesSupplierTimeSlider.valueProperty().addListener((observable, oldValue, newValue) ->
-                carFactory.setAccessoriesSupplierTime(newValue.intValue() * 1000));
+        engineSupplierFixedDelaySlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if(carFactory != null) carFactory.getPreferences().setEngineSupplierDelay(speedToDelay(newValue));
+        });
+        accessoriesSupplierFixedDelaySlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if(carFactory != null) carFactory.getPreferences().setAccessoriesSupplierDelay(speedToDelay(newValue));
+        });
+        workerFixedDelaySlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if(carFactory != null) carFactory.getPreferences().setWorkerDelay(speedToDelay(newValue));
+        });
+    }
+
+    private Long speedToDelay(Number speed){
+        return (long)(1000 / speed.doubleValue());
     }
 }

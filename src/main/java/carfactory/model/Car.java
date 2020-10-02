@@ -1,9 +1,13 @@
-package carfactory;
+package carfactory.model;
 
 
+import carfactory.model.details.CarAccessories;
+import carfactory.model.details.CarBody;
+import carfactory.model.details.CarEngine;
+import carfactory.model.details.Numerable;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Car implements Numerable{
+public class Car implements Numerable {
 
 	private static final AtomicInteger serialNumberGenerator = new AtomicInteger(0);
 
@@ -20,17 +24,15 @@ public class Car implements Numerable{
 	}
 
 	@Override
-	public int getID() { return ID; }
+	public int getId() { return ID; }
 
-	public int getBodyID(){
-		return body.getID();
-	}
-
-	public int getEngineID(){
-		return engine.getID();
-	}
-
-	public int getAccessoriesID(){
-		return accessories.getID();
+	@Override
+	public String toString() {
+		return "Car{" +
+				"ID=" + ID +
+				", engine=" + engine +
+				", body=" + body +
+				", accessories=" + accessories +
+				'}';
 	}
 }

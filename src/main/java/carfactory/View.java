@@ -1,54 +1,70 @@
 package carfactory;
 
-import java.util.Observable;
-import java.util.Observer;
-
+import carfactory.model.CarFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-public class View implements Observer {
 
-    private static final String TOTAL_MADE_TEMPL = "Total made: ";
+public class View {
 
-    protected static final Logger log = LogManager.getLogger();
+    private static final String TOTAL_MADE_PREFIX = "Total made: ";
 
-    @FXML private Label bodyStorageOccupacity;
-    @FXML private Label engineStorageOccupacity;
-    @FXML private Label accessoriesStorageOccupacity;
-    @FXML private Label carStorageOccupacity;
+    protected static final Logger log = LoggerFactory.getLogger(View.class);
 
-    @FXML private Label bodyTotalMade;
-    @FXML private Label engineTotalMade;
-    @FXML private Label accessoriesTotalMade;
-    @FXML private Label carTotalMade;
+    @FXML
+    private Label bodyStorageInfo;
+    @FXML
+    private Label engineStorageInfo;
+    @FXML
+    private Label accessoriesStorageInfo;
+    @FXML
+    private Label carStorageInfo;
 
+    @FXML
+    private Label bodyTotalMade;
+    @FXML
+    private Label engineTotalMade;
+    @FXML
+    private Label accessoriesTotalMade;
+    @FXML
+    private Label carTotalMade;
+
+    @FXML
+    private Label inProgress;
+
+    @FXML
+    private Label totalSold;
+
+    @FXML
+    private Label salesInProgress;
+
+    protected Config config;
 
     protected CarFactory carFactory;
 
-    void setCarFactory(CarFactory carFactory){
-        this.carFactory = carFactory;
-        carFactory.addObserver(this);
+    void setCarFactoryConfig(Config config) {
+        this.config = config;
         log.debug("carFactory attached");
     }
 
-    @Override
-    public void update(Observable o, Object arg) {
+    public void onNext() {
         Platform.runLater(() -> {
-            bodyStorageOccupacity.setText(carFactory.getBodyStorageSize() + "/" +
-                    carFactory.getBodyStorageMaxSize());
-            engineStorageOccupacity.setText(carFactory.getEngineStorageSize() + "/" +
-                    carFactory.getEngineStorageMaxSize());
-            accessoriesStorageOccupacity.setText(carFactory.getAccessoriesStorageSize() + "/" +
-                    carFactory.getAccessoriesStorageMaxSize());
-            carStorageOccupacity.setText(carFactory.getCarStorageSize() + "/" +
-                    carFactory.getCarStorageMaxSize());
-            bodyTotalMade.setText(TOTAL_MADE_TEMPL + carFactory.getBodyTotalMade());
-            engineTotalMade.setText(TOTAL_MADE_TEMPL + carFactory.getEngineTotalMade());
-            accessoriesTotalMade.setText(TOTAL_MADE_TEMPL + carFactory.getAccessoriesTotalMade());
-            carTotalMade.setText(TOTAL_MADE_TEMPL + carFactory.getCarTotalMade());
+            var state = carFactory.getState();
+            Config config = carFactory.getConfig();
+            bodyStorageInfo.setText(state.bodyStorageSize() + "/" + config.bodyStorageMaxSize());
+            engineStorageInfo.setText(state.engineStorageSize() + "/" + config.engineStorageMaxSize());
+            accessoriesStorageInfo.setText(state.accessoriesStorageSize() + "/" + config.accessoriesStorageMaxSize());
+            carStorageInfo.setText(state.carStorageSize() + "/" + config.accessoriesStorageMaxSize());
+            bodyTotalMade.setText(TOTAL_MADE_PREFIX + state.bodiesTotalMade());
+            engineTotalMade.setText(TOTAL_MADE_PREFIX + state.enginesTotalMade());
+            accessoriesTotalMade.setText(TOTAL_MADE_PREFIX + state.accessoriesTotalMade());
+            carTotalMade.setText(TOTAL_MADE_PREFIX + state.carTotalMade());
+            inProgress.setText("Cars in build progress: " + state.inProgress());
+            totalSold.setText("Total sold: " + state.totalSold());
+            salesInProgress.setText("Sales in progress: " + state.salesInProgress());
         });
     }
 }
